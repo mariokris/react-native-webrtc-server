@@ -1,234 +1,240 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <title>react-native-webrtc server</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-</head>
-<body>
-<div id="textRoom" style="display: none;">
-  <div id="textRoomContent">
-    <h3>Text Room</h3>
-  </div>
-  <input id="textRoomInput" >
-  <button onclick="textRoomPress();">Send</button>
-</div>
-<video id="selfView" autoplay></video>
-<div id="remoteViewContainer"></div>
-<div id="roomIDContainer">
-  <input id="roomID" value="abc">
-  <button onclick="alert('tes');">Join/Create room</button>
-</div>
-</body>
-<script src="/socket.io/socket.io.js"></script>
-<script type="text/javascript">
-var socket = io();
+    <head>
+        <title></title>
+        <meta name="description" content="Our first page">
+        <meta name="keywords" content="html tutorial template">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <style>
+            html,
+            body,
+            div,
+            span,
+            applet,
+            object,
+            iframe,
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6,
+            p,
+            blockquote,
+            pre,
+            a,
+            abbr,
+            acronym,
+            address,
+            big,
+            cite,
+            code,
+            del,
+            dfn,
+            em,
+            img,
+            ins,
+            kbd,
+            q,
+            s,
+            samp,
+            small,
+            strike,
+            strong,
+            sub,
+            sup,
+            tt,
+            var,
+            u,
+            i,
+            center,
+            dl,
+            dt,
+            dd,
+            ol,
+            ul,
+            li,
+            fieldset,
+            form,
+            label,
+            legend,
+            table,
+            caption,
+            tbody,
+            tfoot,
+            thead,
+            tr,
+            th,
+            td,
+            article,
+            aside,
+            canvas,
+            details,
+            embed,
+            figure,
+            figcaption,
+            footer,
+            header,
+            hgroup,
+            menu,
+            nav,
+            output,
+            ruby,
+            section,
+            summary,
+            time,
+            mark,
+            audio,
+            video {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                font-size: 100%;
+                font: inherit;
+                vertical-align: baseline;
+            }
 
-var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
-var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
-navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
+            /* HTML5 display-role reset for older browsers */
+            article,
+            aside,
+            details,
+            figcaption,
+            figure,
+            footer,
+            header,
+            hgroup,
+            menu,
+            nav,
+            section {
+                display: block;
+            }
 
-var twilioIceServers = [
-     { url: 'stun:global.stun.twilio.com:3478?transport=udp' }
-     // { url: 'turn:global.turn.twilio.com:3478?transport=udp',
-     //   username: 'ea757ad2c42b932c7f2abe480295e7eb039dc2b13b78c86bc412818ed51e5eea',
-     //   credential: 'MPnnojPRoPDI+B3kLONGF9P440Lb8NkrTq+FxxJBVro=' },
-     // { url: 'turn:global.turn.twilio.com:3478?transport=tcp',
-     //   username: 'ea757ad2c42b932c7f2abe480295e7eb039dc2b13b78c86bc412818ed51e5eea',
-     //   credential: 'MPnnojPRoPDI+B3kLONGF9P440Lb8NkrTq+FxxJBVro=' },
-     // { url: 'turn:global.turn.twilio.com:443?transport=tcp',
-     //   username: 'ea757ad2c42b932c7f2abe480295e7eb039dc2b13b78c86bc412818ed51e5eea',
-     //   credential: 'MPnnojPRoPDI+B3kLONGF9P440Lb8NkrTq+FxxJBVro=' } 
-];
-var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-// configuration.iceServers = twilioIceServers;
+            body {
+                line-height: 1;
+            }
 
-var pcPeers = {};
-var selfView = document.getElementById("selfView");
-var remoteViewContainer = document.getElementById("remoteViewContainer");
-var localStream;
+            ol,
+            ul {
+                list-style: none;
+            }
 
-function getLocalStream() {
-  navigator.getUserMedia({ "audio": true, "video": true }, function (stream) {
-    localStream = stream;
-    selfView.src = URL.createObjectURL(stream);
-    selfView.muted = true;
-  }, logError);
-}
+            blockquote,
+            q {
+                quotes: none;
+            }
 
-function join(roomID) {
-  socket.emit('join', roomID, function(socketIds){
-    console.log('join', socketIds);
-    for (var i in socketIds) {
-      var socketId = socketIds[i];
-      createPC(socketId, true);
-    }
-  });
-}
+            blockquote:before,
+            blockquote:after,
+            q:before,
+            q:after {
+                content: '';
+                content: none;
+            }
 
-function createPC(socketId, isOffer) {
-  var pc = new RTCPeerConnection(configuration);
-  pcPeers[socketId] = pc;
+            table {
+                border-collapse: collapse;
+                border-spacing: 0;
+            }
 
-  pc.onicecandidate = function (event) {
-    console.log('onicecandidate', event);
-    if (event.candidate) {
-      socket.emit('exchange', {'to': socketId, 'candidate': event.candidate });
-    }
-  };
+            /* reset css */
+            .container {
+                width: 100%;
+                height: 100%;
+                background-color: #1F2831;
+                opacity: 0.8;
+                color: #FFFFFF;
+                position: absolute;
+                z-index: -1;
+            }
 
-  function createOffer() {
-    pc.createOffer(function(desc) {
-      console.log('createOffer', desc);
-      pc.setLocalDescription(desc, function () {
-        console.log('setLocalDescription', pc.localDescription);
-        socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription });
-      }, logError);
-    }, logError);
-  }
+            .bottomsheet {
+                bottom: 0;
+                position: absolute;
+                padding: 4% 4% 4% 4%;
+                width: 92%;
+                height: auto;
+                background-color: white;
+                color: black;
+                font-family: arial;
+                align-content: center;
+                text-align: center;
+                border-radius: 4% 4% 0% 0%;
+            }
 
-  pc.onnegotiationneeded = function () {
-    console.log('onnegotiationneeded');
-    if (isOffer) {
-      createOffer();
-    }
-  }
+            h1 {
+                color: black;
+                text-align: center;
+                /* Title 1 / Bold */
+                font-size: 1rem;
+                font-style: bold;
+                font-weight: 400;
+                line-height: 1rem;
+                /* 120.686% */
+                margin: 15px;
+            }
 
-  pc.oniceconnectionstatechange = function(event) {
-    console.log('oniceconnectionstatechange', event);
-    if (event.target.iceConnectionState === 'connected') {
-      createDataChannel();
-    }
-  };
-  pc.onsignalingstatechange = function(event) {
-    console.log('onsignalingstatechange', event);
-  };
+            p {
+                color: #45526C;
+                text-align: center;
+                /* Body / Book */
+                font-size: 0.8rem;
+                font-style: normal;
+                font-weight: 325;
+                line-height: 1rem;
+                /* 171.429% */
+                margin: 20px;
+            }
 
-  pc.onaddstream = function (event) {
-    console.log('onaddstream', event);
-    var element = document.createElement('video');
-    element.id = "remoteView" + socketId;
-    element.autoplay = 'autoplay';
-    element.src = URL.createObjectURL(event.stream);
-    remoteViewContainer.appendChild(element);
-  };
-  pc.addStream(localStream);
-  function createDataChannel() {
-    if (pc.textDataChannel) {
-      return;
-    }
-    var dataChannel = pc.createDataChannel("text");
+            .b1 {
+                width: 80%;
+                height: auto;
+                padding: 0.5rem;
+                justify-content: center;
+                align-items: center;
+                flex-shrink: 0;
+                border-radius: 8px;
+                border-width: 0px;
+                background: var(--Primary-Green-Gradient, linear-gradient(90deg, #00D301 0%, #36C275 49.02%, #00A562 100%));
+                color: white;
+                cursor: pointer;
+                font-size: 1rem;
+            }
 
-    dataChannel.onerror = function (error) {
-      console.log("dataChannel.onerror", error);
-    };
+            .b2 {
+                width: 80%;
+                height: auto;
+                padding: 0.5rem;
+                justify-content: center;
+                align-items: center;
+                flex-shrink: 0;
+                border-radius: 8px;
+                color: #00A562;
+                border-width: 0px;
+                border-color: #00a562;
+                background: #fff;
+                cursor: pointer;
+                font-size: 0.8rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div align="center" class="container"></div>
+        <div class="bottomsheet">
+            <svg style="width: 100%; height: 100%;" viewBox="0 0 328 10" fill="none">
+                <g clip-path="url(#clip0_84_14238)">
+                    <img src="https://braze-images.com/appboy/communication/assets/image_assets/images/65262769382424004c660461/original.png?1696999273" width="100%" height="100%" style="vertical-align:middle;">
 
-    dataChannel.onmessage = function (event) {
-      console.log("dataChannel.onmessage:", event.data);
-      var content = document.getElementById('textRoomContent');
-      content.innerHTML = content.innerHTML + '<p>' + socketId + ': ' + event.data + '</p>';
-    };
-
-    dataChannel.onopen = function () {
-      console.log('dataChannel.onopen');
-      var textRoom = document.getElementById('textRoom');
-      textRoom.style.display = "block";
-    };
-
-    dataChannel.onclose = function () {
-      console.log("dataChannel.onclose");
-    };
-
-    pc.textDataChannel = dataChannel;
-  }
-  return pc;
-}
-
-function exchange(data) {
-  var fromId = data.from;
-  var pc;
-  if (fromId in pcPeers) {
-    pc = pcPeers[fromId];
-  } else {
-    pc = createPC(fromId, false);
-  }
-
-  if (data.sdp) {
-    console.log('exchange sdp', data);
-    pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
-      if (pc.remoteDescription.type == "offer")
-        pc.createAnswer(function(desc) {
-          console.log('createAnswer', desc);
-          pc.setLocalDescription(desc, function () {
-            console.log('setLocalDescription', pc.localDescription);
-            socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription });
-          }, logError);
-        }, logError);
-    }, logError);
-  } else {
-    console.log('exchange candidate', data);
-    pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-  }
-}
-
-function leave(socketId) {
-  console.log('leave', socketId);
-  var pc = pcPeers[socketId];
-  pc.close();
-  delete pcPeers[socketId];
-  var video = document.getElementById("remoteView" + socketId);
-  if (video) video.remove();
-}
-
-socket.on('exchange', function(data){
-  exchange(data);
-});
-socket.on('leave', function(socketId){
-  leave(socketId);
-});
-
-socket.on('connect', function(data) {
-  console.log('connect');
-  getLocalStream();
-});
-
-function logError(error) {
-  console.log("logError", error);
-}
-
-function press() {
-  var roomID = document.getElementById('roomID').value;
-  if (roomID == "") {
-    alert('Please enter room ID');
-  } else {
-    var roomIDContainer = document.getElementById('roomIDContainer');
-    roomIDContainer.parentElement.removeChild(roomIDContainer);
-    join(roomID);
-  }
-}
-function textRoomPress() {
-  var text = document.getElementById('textRoomInput').value;
-  if (text == "") {
-    alert('Enter something');
-  } else {
-    document.getElementById('textRoomInput').value = '';
-    var content = document.getElementById('textRoomContent');
-    content.innerHTML = content.innerHTML + '<p>' + 'Me' + ': ' + text + '</p>';
-    for (var key in pcPeers) {
-      var pc = pcPeers[key];
-      pc.textDataChannel.send(text);
-    }
-  }
-}
-
-</script>
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-68314333-1', 'auto');
-  ga('send', 'pageview');
-
-</script>
+                        <h1><b>Ada yang Menarik dari MIFX</b></h1>
+                        <p>Aktifkan notifikasi untuk dapatkan update Signal terkini & promo-promo menarik dari MIFX.</p>
+</g>
+         <div class="modal__button-wrap">
+                            <a class="modal__btn modal__btn--secondary" href="#"
+                                onclick="appboyBridge.logClick('1');">Secondary Action</a>
+                            <a class="modal__btn modal__btn--main" href="#"
+                                onclick="appboyBridge.logClick('0'); customLog();alert('legar bos');">Primary Action</a>
+                        </div>
+                </div>
+        
+        </center>
+    </body>
 </html>
